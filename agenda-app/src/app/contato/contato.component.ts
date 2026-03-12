@@ -5,7 +5,8 @@ import { MatFormField, MatInputModule } from '@angular/material/input';
 import { MatToolbar } from '@angular/material/toolbar';
 import { ContatoService } from '../contato.service';
 import { Contato } from './contato';
-import { FormBuilder, FormGroup, Validators, ɵInternalFormsSharedModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ɵInternalFormsSharedModule, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-contato',
@@ -15,8 +16,11 @@ import { FormBuilder, FormGroup, Validators, ɵInternalFormsSharedModule } from 
     MatButtonModule,
     MatInputModule,
     MatFormField,
-    ɵInternalFormsSharedModule
-],
+    ɵInternalFormsSharedModule,
+    ReactiveFormsModule,
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './contato.component.html',
   styleUrl: './contato.component.css'
 })
@@ -24,7 +28,8 @@ export class ContatoComponent implements OnInit {
 
   formGroup!: FormGroup;
 
-  contato: Contato = new Contato();
+  contatos: Contato[] = [];
+
   constructor(
     private contatoService: ContatoService,
     private formBuilder: FormBuilder
@@ -33,22 +38,26 @@ export class ContatoComponent implements OnInit {
 
   ngOnInit(): void {
     this.formGroup = this.formBuilder.group({
-      nome:['', Validators.required],
-      email:['', Validators.email]
+      nome: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
     });
 
   }
 
   submit() {
     console.log(this.formGroup.value)
-    this.salvarContato(this.contato);
+    const formValues = this.formGroup.value
+    const contatoSalvo: Contato = new Contato(formValues['nome'], formValues['email'])
+
+    this.salvarContato(contatoSalvo);
   }
 
   salvarContato(contato: Contato) {
+    console.log(contato)
     this.contatoService.salvarContato(contato)
       .subscribe({
         next: (res) => {
-          this.contato = res;
+          this.contatos.push(res);
         },
         error: (errorResponse) =>
           console.error(errorResponse)
