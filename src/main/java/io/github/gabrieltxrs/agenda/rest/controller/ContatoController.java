@@ -15,6 +15,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/contatos")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class ContatoController {
 
     private final ContatoRepository contatoRepository;
