@@ -36,7 +36,7 @@ export class ContatoComponent implements OnInit {
   formGroup!: FormGroup;
 
   contatos: Contato[] = [];
-  colunas: string[] = ['id', 'nome', 'email', 'favorito']
+  colunas: string[] = ['foto', 'id', 'nome', 'email', 'favorito']
 
   constructor(
     private contatoService: ContatoService,
@@ -64,8 +64,8 @@ export class ContatoComponent implements OnInit {
     this.contatoService.salvarContato(contato)
       .subscribe({
         next: (res) => {
-          this.contatos.push(res);
-          console.log(this.contatos)
+          let lista: Contato[] = [... this.contatos, res]
+          this.contatos = lista;
         },
         error: (errorResponse) =>
           console.error(errorResponse)
@@ -80,5 +80,23 @@ export class ContatoComponent implements OnInit {
     })
   }
 
-  
+  toggleFavorito(contato: Contato) {
+    this.contatoService.toggleFavorito(contato.id).subscribe({
+      next: () => contato.favorito = !contato.favorito
+    });
+  }
+
+  upload(id: number, event: any) {
+    const files = event.target.files;
+    if (files) {
+      const foto = files[0];
+      const formData: FormData = new FormData()
+      formData.append("file", foto)
+
+      this.contatoService.upload(id, formData).subscribe({
+        next: () => this.getCliente(-1),
+        error: (errorResponse) => console.error(errorResponse)
+      })
+    }
+  }
 }

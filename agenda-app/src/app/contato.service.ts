@@ -24,4 +24,8 @@ export class ContatoService {
   public toggleFavorito(id: number): Observable<void> {
     return this.httpClient.patch<void>(`${this.apiUrl}/${id}/favorito`, null)
   }
+
+  public upload(id: number, formData: FormData): Observable<any> {
+    return this.httpClient.put<any>(`${this.apiUrl}/${id}/foto`, formData)
+  } 
 }

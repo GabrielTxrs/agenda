@@ -2,13 +2,17 @@ package io.github.gabrieltxrs.agenda.rest.controller;
 
 import io.github.gabrieltxrs.agenda.model.entity.Contato;
 import io.github.gabrieltxrs.agenda.model.repository.ContatoRepository;
+import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -54,5 +58,23 @@ public class ContatoController {
                 }
         );
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/foto")
+    public Optional<byte[]> addPhoto(@PathVariable Integer id, @RequestParam("file") Part file) {
+        Optional<Contato> contato = contatoRepository.findById(id);
+        return contato.map(c -> {
+            try {
+                InputStream is = file.getInputStream();
+                byte[] bytes = new byte[(int) file.getSize()];
+                IOUtils.readFully(is, bytes);
+                c.setFoto(bytes);
+                contatoRepository.save(c);
+                is.close();
+                return bytes;
+            } catch (IOException e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao processar a foto");
+            }
+        });
     }
 }
