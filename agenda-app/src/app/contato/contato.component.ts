@@ -7,6 +7,9 @@ import { ContatoService } from '../contato.service';
 import { Contato } from './contato';
 import { FormBuilder, FormGroup, Validators, ɵInternalFormsSharedModule, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatTab, MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-contato',
@@ -19,7 +22,11 @@ import { CommonModule } from '@angular/common';
     ɵInternalFormsSharedModule,
     ReactiveFormsModule,
     CommonModule,
-    FormsModule
+    FormsModule,
+    MatTabsModule,
+    MatTableModule,
+    MatIconModule,
+    MatCardModule
   ],
   templateUrl: './contato.component.html',
   styleUrl: './contato.component.css'
@@ -29,6 +36,7 @@ export class ContatoComponent implements OnInit {
   formGroup!: FormGroup;
 
   contatos: Contato[] = [];
+  colunas: string[] = ['id', 'nome', 'email', 'favorito']
 
   constructor(
     private contatoService: ContatoService,
@@ -41,11 +49,10 @@ export class ContatoComponent implements OnInit {
       nome: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
     });
-
+    this.getCliente(-1);
   }
 
   submit() {
-    console.log(this.formGroup.value)
     const formValues = this.formGroup.value
     const contatoSalvo: Contato = new Contato(formValues['nome'], formValues['email'])
 
@@ -58,9 +65,20 @@ export class ContatoComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.contatos.push(res);
+          console.log(this.contatos)
         },
         error: (errorResponse) =>
           console.error(errorResponse)
       })
   }
+
+  getCliente(id: number) {
+    this.contatoService.getCliente(id).subscribe({
+      next: (res) => {
+        this.contatos = res
+      }
+    })
+  }
+
+  
 }

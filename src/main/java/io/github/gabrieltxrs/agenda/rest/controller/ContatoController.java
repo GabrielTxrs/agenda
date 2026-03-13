@@ -4,6 +4,7 @@ import io.github.gabrieltxrs.agenda.model.entity.Contato;
 import io.github.gabrieltxrs.agenda.model.repository.ContatoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,13 +46,13 @@ public class ContatoController {
     }
 
     @PatchMapping("/{id}/favorito")
-    public void toggleFavorito(@PathVariable Integer id) {
+    public ResponseEntity<Void> toggleFavorito(@PathVariable Integer id) {
         Optional<Contato> contato = contatoRepository.findById(id);
         contato.ifPresent(c -> {
                     c.setFavorito(!c.getFavorito());
                     contatoRepository.save(c);
                 }
         );
-        throw new ResponseStatusException(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 }
